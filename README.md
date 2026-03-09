@@ -13,6 +13,10 @@ A live National Rail departure board, built as an iPhone-first PWA. Add it to yo
 - **Infinite scroll** — load more departures beyond the initial 20
 - **Installable PWA** — works offline-capable, adds to iOS/Android home screen with standalone display
 
+## Credits
+
+- [stations.json] with thanks to @davwheat's [uk-railway-stations](https://github.com/davwheat/uk-railway-stations) repository
+
 ## How it works
 
 ### API
