@@ -668,6 +668,58 @@ body {
   opacity: 1;
 }
 
+.custom-route-card--confirming {
+  cursor: default;
+}
+
+.custom-route-card--confirming:active {
+  opacity: 1;
+}
+
+.route-delete-confirm {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 10px;
+}
+
+.route-delete-confirm-text {
+  font-size: 14px;
+  color: var(--label-primary);
+  font-weight: 500;
+  flex: 1;
+  min-width: 0;
+}
+
+.route-delete-confirm-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.route-delete-confirm-cancel,
+.route-delete-confirm-delete {
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--font);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.route-delete-confirm-cancel {
+  background: var(--fill);
+  color: var(--label-primary);
+}
+
+.route-delete-confirm-delete {
+  background: var(--red);
+  color: #fff;
+}
+
 .add-route-btn {
   background: var(--bg-secondary);
   border: 1.5px dashed var(--fill);
