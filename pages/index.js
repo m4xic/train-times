@@ -239,11 +239,11 @@ export default function Home() {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div className="preset-card-label">{r.label || 'My route'}</div>
                     <div className="preset-card-route">
-                      {r.from.name}
+                      {r.from.crs}
                       {r.to && (
                         <>
                           <span className="preset-card-arrow"> → </span>
-                          {r.to.name}
+                          {r.to.crs}
                         </>
                       )}
                     </div>
@@ -384,11 +384,11 @@ function PresetCard({ preset, onClick }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <div className="preset-card-label">{preset.label}</div>
         <div className="preset-card-route">
-          {preset.from.name}
+          {preset.from.crs}
           {preset.to && (
             <>
               <span className="preset-card-arrow"> → </span>
-              {preset.to.name}
+              {preset.to.crs}
             </>
           )}
         </div>
