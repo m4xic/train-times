@@ -36,7 +36,7 @@ function searchAllStations(query, limit = 6) {
     .filter(
       (s) =>
         s.stationName.toLowerCase().includes(q) ||
-        s.crsCode.toLowerCase() === q
+        s.crsCode.toLowerCase().includes(q)
     )
     .slice(0, limit)
 }
