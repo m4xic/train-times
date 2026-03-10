@@ -55,6 +55,7 @@ export default function Home() {
 
   // Custom routes
   const [customRoutes, setCustomRoutes] = useState([])
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null)
   const [showAdd, setShowAdd] = useState(false)
   const [addName, setAddName] = useState('')
   const [addFrom, setAddFrom] = useState(null)
@@ -188,28 +189,50 @@ export default function Home() {
           {customRoutes.map((r) => (
             <div
               key={r.id}
-              className="preset-card custom-route-card"
-              onClick={() => router.push(`/station/${r.from.crs}${r.to ? `?to=${r.to.crs}` : ''}`)}
+              className={`preset-card custom-route-card${confirmDeleteId === r.id ? ' custom-route-card--confirming' : ''}`}
+              onClick={() => { if (confirmDeleteId !== r.id) router.push(`/station/${r.from.crs}${r.to ? `?to=${r.to.crs}` : ''}`) }}
             >
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div className="preset-card-label">{r.label || 'My route'}</div>
-                <div className="preset-card-route">
-                  {r.from.name}
-                  {r.to && (
-                    <>
-                      <span className="preset-card-arrow"> → </span>
-                      {r.to.name}
-                    </>
-                  )}
+              {confirmDeleteId === r.id ? (
+                <div className="route-delete-confirm">
+                  <span className="route-delete-confirm-text">Delete this route?</span>
+                  <div className="route-delete-confirm-actions">
+                    <button
+                      className="route-delete-confirm-cancel"
+                      onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(null) }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="route-delete-confirm-delete"
+                      onClick={(e) => { e.stopPropagation(); removeRoute(r.id); setConfirmDeleteId(null) }}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
-              </div>
-              <button
-                className="route-delete-btn"
-                onClick={(e) => { e.stopPropagation(); removeRoute(r.id) }}
-                aria-label="Remove route"
-              >
-                ×
-              </button>
+              ) : (
+                <>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div className="preset-card-label">{r.label || 'My route'}</div>
+                    <div className="preset-card-route">
+                      {r.from.name}
+                      {r.to && (
+                        <>
+                          <span className="preset-card-arrow"> → </span>
+                          {r.to.name}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    className="route-delete-btn"
+                    onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(r.id) }}
+                    aria-label="Remove route"
+                  >
+                    ×
+                  </button>
+                </>
+              )}
             </div>
           ))}
 
