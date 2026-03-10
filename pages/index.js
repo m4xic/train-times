@@ -55,6 +55,7 @@ export default function Home() {
 
   // Custom routes
   const [customRoutes, setCustomRoutes] = useState([])
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null)
   const [showAdd, setShowAdd] = useState(false)
   const [addName, setAddName] = useState('')
   const [addFrom, setAddFrom] = useState(null)
@@ -136,6 +137,40 @@ export default function Home() {
 
       <div className="container">
 
+        {/* All Stations search */}
+        <div className="search-wrap" style={{ marginTop: 16 }}>
+          <svg className="search-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <circle cx="7.5" cy="7.5" r="5.5" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M12 12l3.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+          <input
+            type="search"
+            className="search-input"
+            placeholder="Search stations…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck="false"
+          />
+        </div>
+
+        {results.length > 0 && (
+          <div className="search-results">
+            {results.map((s) => (
+              <div
+                key={s.crs}
+                className="search-result-item"
+                onClick={() => router.push(`/station/${s.crs}`)}
+              >
+                <span className="search-result-name">{s.name}</span>
+                <span className="search-result-crs">{s.crs}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Nearby stations */}
         {nearby !== null && (
           <>
@@ -188,28 +223,50 @@ export default function Home() {
           {customRoutes.map((r) => (
             <div
               key={r.id}
-              className="preset-card custom-route-card"
-              onClick={() => router.push(`/station/${r.from.crs}${r.to ? `?to=${r.to.crs}` : ''}`)}
+              className={`preset-card custom-route-card${confirmDeleteId === r.id ? ' custom-route-card--confirming' : ''}`}
+              onClick={() => { if (confirmDeleteId !== r.id) router.push(`/station/${r.from.crs}${r.to ? `?to=${r.to.crs}` : ''}`) }}
             >
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div className="preset-card-label">{r.label || 'My route'}</div>
-                <div className="preset-card-route">
-                  {r.from.crs}
-                  {r.to && (
-                    <>
-                      <span className="preset-card-arrow"> → </span>
-                      {r.to.crs}
-                    </>
-                  )}
+              {confirmDeleteId === r.id ? (
+                <div className="route-delete-confirm">
+                  <span className="route-delete-confirm-text">Delete this route?</span>
+                  <div className="route-delete-confirm-actions">
+                    <button
+                      className="route-delete-confirm-cancel"
+                      onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(null) }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="route-delete-confirm-delete"
+                      onClick={(e) => { e.stopPropagation(); removeRoute(r.id); setConfirmDeleteId(null) }}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
-              </div>
-              <button
-                className="route-delete-btn"
-                onClick={(e) => { e.stopPropagation(); removeRoute(r.id) }}
-                aria-label="Remove route"
-              >
-                ×
-              </button>
+              ) : (
+                <>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div className="preset-card-label">{r.label || 'My route'}</div>
+                    <div className="preset-card-route">
+                      {r.from.crs}
+                      {r.to && (
+                        <>
+                          <span className="preset-card-arrow"> → </span>
+                          {r.to.crs}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    className="route-delete-btn"
+                    onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(r.id) }}
+                    aria-label="Remove route"
+                  >
+                    ×
+                  </button>
+                </>
+              )}
             </div>
           ))}
 
@@ -324,42 +381,6 @@ export default function Home() {
             </button>
           )}
         </div>
-
-        {/* All Stations search */}
-        <div className="section-header">All Stations</div>
-
-        <div className="search-wrap">
-          <svg className="search-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-            <circle cx="7.5" cy="7.5" r="5.5" stroke="currentColor" strokeWidth="1.5" />
-            <path d="M12 12l3.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-          <input
-            type="search"
-            className="search-input"
-            placeholder="Search stations…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="off"
-            spellCheck="false"
-          />
-        </div>
-
-        {results.length > 0 && (
-          <div className="search-results">
-            {results.map((s) => (
-              <div
-                key={s.crs}
-                className="search-result-item"
-                onClick={() => router.push(`/station/${s.crs}`)}
-              >
-                <span className="search-result-name">{s.name}</span>
-                <span className="search-result-crs">{s.crs}</span>
-              </div>
-            ))}
-          </div>
-        )}
 
       </div>
     </>
