@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { presets } from '../lib/presets'
-import { stations } from '../lib/stations'
 import allStations from '../stations.json'
 
 const STORAGE_KEY = 'custom-routes'
@@ -80,16 +79,7 @@ export default function Home() {
     )
   }, [])
 
-  const results =
-    search.length >= 2
-      ? stations
-          .filter(
-            (s) =>
-              s.name.toLowerCase().includes(search.toLowerCase()) ||
-              s.crs.toLowerCase() === search.toLowerCase()
-          )
-          .slice(0, 8)
-      : []
+  const results = searchAllStations(search, 8)
 
   const fromResults = searchAllStations(fromSearch)
   const toResults = searchAllStations(toSearch)
@@ -350,12 +340,12 @@ export default function Home() {
           <div className="search-results">
             {results.map((s) => (
               <div
-                key={s.crs}
+                key={s.crsCode}
                 className="search-result-item"
-                onClick={() => router.push(`/station/${s.crs}`)}
+                onClick={() => router.push(`/station/${s.crsCode}`)}
               >
-                <span className="search-result-name">{s.name}</span>
-                <span className="search-result-crs">{s.crs}</span>
+                <span className="search-result-name">{s.stationName}</span>
+                <span className="search-result-crs">{s.crsCode}</span>
               </div>
             ))}
           </div>
