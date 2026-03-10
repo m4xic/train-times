@@ -136,6 +136,40 @@ export default function Home() {
 
       <div className="container">
 
+        {/* All Stations search */}
+        <div className="search-wrap" style={{ marginTop: 16 }}>
+          <svg className="search-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <circle cx="7.5" cy="7.5" r="5.5" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M12 12l3.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+          <input
+            type="search"
+            className="search-input"
+            placeholder="Search stations…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck="false"
+          />
+        </div>
+
+        {results.length > 0 && (
+          <div className="search-results">
+            {results.map((s) => (
+              <div
+                key={s.crs}
+                className="search-result-item"
+                onClick={() => router.push(`/station/${s.crs}`)}
+              >
+                <span className="search-result-name">{s.name}</span>
+                <span className="search-result-crs">{s.crs}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Nearby stations */}
         {nearby !== null && (
           <>
@@ -325,41 +359,6 @@ export default function Home() {
           )}
         </div>
 
-        {/* All Stations search */}
-        <div className="section-header">All Stations</div>
-
-        <div className="search-wrap">
-          <svg className="search-icon" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-            <circle cx="7.5" cy="7.5" r="5.5" stroke="currentColor" strokeWidth="1.5" />
-            <path d="M12 12l3.5 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          </svg>
-          <input
-            type="search"
-            className="search-input"
-            placeholder="Search stations…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="off"
-            spellCheck="false"
-          />
-        </div>
-
-        {results.length > 0 && (
-          <div className="search-results">
-            {results.map((s) => (
-              <div
-                key={s.crs}
-                className="search-result-item"
-                onClick={() => router.push(`/station/${s.crs}`)}
-              >
-                <span className="search-result-name">{s.name}</span>
-                <span className="search-result-crs">{s.crs}</span>
-              </div>
-            ))}
-          </div>
-        )}
 
       </div>
     </>
