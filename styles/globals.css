@@ -633,6 +633,19 @@ body {
   padding: 16px 0 40px;
 }
 
+/* ─── Quick routes 2-column grid ────────────────────────────────── */
+
+.quick-routes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.quick-routes-grid .add-route-btn,
+.quick-routes-grid .add-route-form {
+  grid-column: 1 / -1;
+}
+
 /* ─── Custom routes ──────────────────────────────────────────────── */
 
 .custom-route-card {

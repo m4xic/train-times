@@ -198,7 +198,7 @@ export default function Home() {
         {/* Quick Routes */}
         <div className="section-header">Quick Routes</div>
 
-        <div className="preset-grid">
+        <div className="quick-routes-grid">
           {/* Built-in presets */}
           {presets.map((p, i) => (
             <PresetCard
