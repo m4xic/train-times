@@ -361,7 +361,7 @@ function getStatus(service) {
   const etdMins = h * 60 + m
   const nowMins = now.getHours() * 60 + now.getMinutes()
   if (nowMins > etdMins) return { type: 'departed', label: 'Departed' }
-  return { type: 'delayed', label: etd }
+  return { type: 'delayed', label: `Exp ${etd}` }
 }
 
 function buildCallingText(names, visibleCount) {
