@@ -633,6 +633,31 @@ body {
   padding: 16px 0 40px;
 }
 
+/* ─── Section header row (with optional action button) ──────────── */
+
+.section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0 8px;
+}
+
+.section-edit-btn {
+  background: none;
+  border: none;
+  color: var(--blue);
+  font-size: 15px;
+  font-weight: 400;
+  font-family: var(--font);
+  cursor: pointer;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.section-edit-btn:active {
+  opacity: 0.55;
+}
+
 /* ─── Quick routes 2-column grid ────────────────────────────────── */
 
 .quick-routes-grid {

@@ -54,6 +54,7 @@ export default function Home() {
 
   // Custom routes
   const [customRoutes, setCustomRoutes] = useState([])
+  const [editMode, setEditMode] = useState(false)
   const [showAdd, setShowAdd] = useState(false)
   const [addName, setAddName] = useState('')
   const [addFrom, setAddFrom] = useState(null)
@@ -196,7 +197,14 @@ export default function Home() {
         )}
 
         {/* Quick Routes */}
-        <div className="section-header">Quick Routes</div>
+        <div className="section-header-row">
+          <span className="section-header" style={{ padding: 0 }}>Quick Routes</span>
+          {customRoutes.length > 0 && (
+            <button className="section-edit-btn" onClick={() => setEditMode((v) => !v)}>
+              {editMode ? 'Done' : 'Edit'}
+            </button>
+          )}
+        </div>
 
         <div className="quick-routes-grid">
           {/* Built-in presets */}
@@ -227,13 +235,15 @@ export default function Home() {
                   )}
                 </div>
               </div>
-              <button
-                className="route-delete-btn"
-                onClick={(e) => { e.stopPropagation(); if (window.confirm('Delete this route?')) removeRoute(r.id) }}
-                aria-label="Remove route"
-              >
-                ×
-              </button>
+              {editMode && (
+                <button
+                  className="route-delete-btn"
+                  onClick={(e) => { e.stopPropagation(); if (window.confirm('Delete this route?')) removeRoute(r.id) }}
+                  aria-label="Remove route"
+                >
+                  ×
+                </button>
+              )}
             </div>
           ))}
 
