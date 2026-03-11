@@ -527,8 +527,8 @@ function DepartureCard({ service }) {
                 <div style={{ color: 'var(--red)', fontSize: 13 }}>{callingError}</div>
               )}
               {callingPoints && callingPoints.map((cp, i) => {
-                const timeStr = cp.at || cp.et || cp.st || '—'
-                const isDelayed = cp.et && cp.et !== 'On time' && cp.et !== cp.st
+                const timeStr = cp.at || (cp.et && cp.et !== 'On time' ? cp.et : cp.st) || '—'
+                const isDelayed = !cp.at && cp.et && cp.et !== 'On time'
                 const isCancelled = cp.cancelled
                 return (
                   <div key={i} className="calling-row">
