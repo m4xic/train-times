@@ -257,10 +257,14 @@ export default function StationPage() {
         {/* Refresh bar */}
         <div className="refresh-bar">
           <span className="refresh-text">
-            <span className="live-dot" />
-            {loading && data ? 'Updating…' : `Live · updates in ${countdown}s`}
+            <span className={`live-dot${error && data ? ' error' : ''}`} />
+            {error && data
+              ? 'Connection lost · tap Refresh to retry'
+              : loading && data
+              ? 'Updating…'
+              : `Live · updates in ${countdown}s`}
           </span>
-          <button className="refresh-btn" onClick={fetchData}>
+          <button className="refresh-btn" onClick={() => fetchData(numRowsRef.current)}>
             Refresh now
           </button>
         </div>
@@ -273,18 +277,18 @@ export default function StationPage() {
           </div>
         )}
 
-        {/* Error */}
-        {error && (
+        {/* Error (initial load only — refresh errors keep data visible above) */}
+        {error && !data && (
           <div className="error-card">
             <div>{error}</div>
-            <button className="error-retry" onClick={fetchData}>
+            <button className="error-retry" onClick={() => fetchData(numRowsRef.current)}>
               Try again
             </button>
           </div>
         )}
 
         {/* Departures */}
-        {data && !error && (
+        {data && (
           <>
             {data.services.length === 0 ? (
               <div className="empty-state">

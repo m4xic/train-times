@@ -386,6 +386,11 @@ body {
   50%       { opacity: 0.4; transform: scale(0.75); }
 }
 
+.live-dot.error {
+  background: var(--red);
+  animation: none;
+}
+
 .refresh-btn {
   background: none;
   border: none;
