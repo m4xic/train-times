@@ -107,13 +107,6 @@ body {
   color: var(--govuk-link-hover-colour);
 }
 
-/* ─── Status tags ─────────────────────────────────────────────── */
-
-/* govuk-tag--orange doesn't exist in the palette; define it */
-.govuk-tag--orange {
-  background: #f47738;
-  color: #fff;
-}
 
 /* ─── Refresh bar ─────────────────────────────────────────────── */
 
@@ -297,18 +290,19 @@ body {
     border-bottom: 1px solid var(--govuk-border-colour);
   }
 
-  /* Main service row: explicit grid placement
-     Col 1 (64px): time
-     Col 2 (1fr):  destination
-     Col 3 (56px): platform (spans rows 1-2, prominent)
+  /* Main service row: fixed column widths so all rows align identically.
+     Col 1 (120px): time + exp time + status tag.
+                    120px fits the widest tag ("Cancelled" at 1.1875rem bold).
+     Col 2 (1fr):   destination + via + operator
+     Col 3 (56px):  platform (spans rows 1–2, prominent)
 
-     Row 1: time      | dest name      | [Plat label]
-     Row 2: exp time  | via · operator | [  12      ]
-     Row 3: status tag | show stops (span cols 2-3)
+     Row 1: time      | dest name + via + operator | [Plat]
+     Row 2: exp time  | (dest cont.)               | [ 12 ]
+     Row 3: status    | show stops (spans 2–3)      |
   */
   .dep-table tr.govuk-table__row:first-child {
     display: grid;
-    grid-template-columns: auto 1fr 56px;
+    grid-template-columns: 120px 1fr 56px;
     column-gap: 12px;
     width: auto;
     align-items: start;
