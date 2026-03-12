@@ -1,4 +1,4 @@
-import { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { stations } from '../../lib/stations'
@@ -6,6 +6,69 @@ import { stations } from '../../lib/stations'
 const REFRESH_SECS = 10
 const ROWS_STEP = 20
 const MAX_ROWS = 150
+
+// ─── Status helpers ───────────────────────────────────────────────
+
+function getStatus(service) {
+  if (service.cancelled) return { type: 'cancelled', label: 'Cancelled' }
+
+  const etd = service.etd
+
+  if (etd === 'Delayed') return { type: 'delayed', label: 'Delayed' }
+
+  if (!etd || etd === 'On time') {
+    if (!service.std) return { type: 'on-time', label: 'On time' }
+    const [h, m] = service.std.split(':').map(Number)
+    const now = new Date()
+    if (now.getHours() * 60 + now.getMinutes() > h * 60 + m)
+      return { type: 'departed', label: 'Departed' }
+    return { type: 'on-time', label: 'On time' }
+  }
+
+  const [h, m] = etd.split(':').map(Number)
+  const now = new Date()
+  if (now.getHours() * 60 + now.getMinutes() > h * 60 + m)
+    return { type: 'departed', label: 'Departed' }
+  return { type: 'delayed', label: etd }
+}
+
+const STATUS_TAG = {
+  'on-time':  'govuk-tag--green',
+  'delayed':  'govuk-tag--orange',
+  'cancelled':'govuk-tag--red',
+  'departed': 'govuk-tag--grey',
+}
+
+// ─── Layout components ────────────────────────────────────────────
+
+function GovHeader() {
+  return (
+    <header className="govuk-header">
+      <div className="govuk-header__container govuk-width-container">
+        <div className="govuk-header__content">
+          <a href="/" className="govuk-header__link govuk-header__service-name">
+            Train Times
+          </a>
+        </div>
+      </div>
+    </header>
+  )
+}
+
+function PhaseBanner() {
+  return (
+    <div className="govuk-phase-banner">
+      <p className="govuk-phase-banner__content">
+        <strong className="govuk-tag govuk-phase-banner__content__tag">Beta</strong>
+        <span className="govuk-phase-banner__text">
+          Live National Rail departure information
+        </span>
+      </p>
+    </div>
+  )
+}
+
+// ─── Station page ─────────────────────────────────────────────────
 
 export default function StationPage() {
   const router = useRouter()
@@ -17,25 +80,19 @@ export default function StationPage() {
   const [error, setError] = useState(null)
   const [countdown, setCountdown] = useState(REFRESH_SECS)
   const [numRows, setNumRows] = useState(ROWS_STEP)
+  const [showDeparted, setShowDeparted] = useState(false)
+  const [showFilter, setShowFilter] = useState(false)
+  const [filterSearch, setFilterSearch] = useState('')
 
-  // Keep a ref so the auto-refresh interval always uses the current numRows
-  // without needing to recreate the interval every time rows change.
   const numRowsRef = useRef(ROWS_STEP)
   const sentinelRef = useRef(null)
 
   const hasMore = data && data.services.length >= numRows && numRows < MAX_ROWS
-  // True when the API returned fewer trains than we asked for — definitive end of data.
-  // Also true after a load-more confirmed nothing new (numRows was increased but count didn't grow).
   const reachedEnd = data && !hasMore && (
-    data.services.length < numRows ||   // fewer returned than requested → confirmed end
-    numRows > ROWS_STEP                 // load-more was attempted and exhausted
+    data.services.length < numRows ||
+    numRows > ROWS_STEP
   )
 
-  const [showDeparted, setShowDeparted] = useState(false)
-
-  // Destination filter UI
-  const [showFilter, setShowFilter] = useState(false)
-  const [filterSearch, setFilterSearch] = useState('')
   const filterResults =
     filterSearch.length >= 2
       ? stations
@@ -76,7 +133,6 @@ export default function StationPage() {
     }
   }, [crs, to])
 
-  // Fetch on mount / when crs or to changes — reset rows too
   useEffect(() => {
     if (!router.isReady) return
     setLoading(true)
@@ -86,7 +142,6 @@ export default function StationPage() {
     fetchData(ROWS_STEP)
   }, [router.isReady, crs, to]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Auto-refresh countdown — uses ref so it doesn't recreate when rows change
   useEffect(() => {
     const t = setInterval(() => {
       setCountdown((prev) => {
@@ -100,7 +155,6 @@ export default function StationPage() {
     return () => clearInterval(t)
   }, [fetchData])
 
-  // Load the next page of trains
   const loadMore = useCallback(async () => {
     if (loadingMore || !hasMore) return
     const nextRows = Math.min(numRows + ROWS_STEP, MAX_ROWS)
@@ -121,7 +175,6 @@ export default function StationPage() {
     }
   }, [crs, to, numRows, loadingMore, hasMore])
 
-  // Infinite scroll — fire loadMore when sentinel enters the viewport
   useEffect(() => {
     const sentinel = sentinelRef.current
     if (!sentinel) return
@@ -139,94 +192,89 @@ export default function StationPage() {
     setFilterSearch('')
   }
 
-  const clearFilter = () => {
-    router.replace(`/station/${crs}`)
-  }
+  const clearFilter = () => router.replace(`/station/${crs}`)
+
+  const visibleServices = data?.services.filter(
+    (s) => showDeparted || getStatus(s).type !== 'departed'
+  ) ?? []
 
   return (
     <>
       <Head>
-        <title>{stationName} Departures</title>
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1, viewport-fit=cover"
-        />
+        <title>{stationName} Departures – Train Times</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
-      {/* Navbar */}
-      <div className="navbar">
-        <button className="back-btn" onClick={() => router.push('/')}>
-          <svg width="8" height="14" viewBox="0 0 8 14" fill="none" aria-hidden="true">
-            <path
-              d="M7 1L1 7l6 6"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          Stations
-        </button>
-        <span className="navbar-title" style={{ flex: 1 }}>
-          {stationName}
-        </span>
-      </div>
+      <GovHeader />
 
-      <div className="container">
-        {/* Filter strip */}
-        <div className="filter-strip">
-          {to ? (
-            <div className="filter-pill">
-              <span>To: {filterName}</span>
-              <button className="filter-pill-clear" onClick={clearFilter} aria-label="Clear filter">
-                ×
-              </button>
+      <div className="govuk-width-container">
+        <PhaseBanner />
+
+        <main className="govuk-main-wrapper" id="main-content">
+          <a
+            className="govuk-back-link"
+            href="/"
+            onClick={(e) => { e.preventDefault(); router.push('/') }}
+          >
+            Back
+          </a>
+
+          <h1 className="govuk-heading-l" style={{ marginBottom: '10px' }}>
+            {stationName}
+            {filterName && (
+              <span className="govuk-caption-l">to {filterName}</span>
+            )}
+          </h1>
+
+          {/* Controls */}
+          <div className="filter-controls">
+            <div>
+              {to ? (
+                <p className="govuk-body" style={{ marginBottom: 0 }}>
+                  Showing trains to <strong>{filterName}</strong>.{' '}
+                  <button
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: 'inherit', fontSize: 'inherit', color: 'var(--govuk-link-colour)', textDecoration: 'underline' }}
+                    onClick={clearFilter}
+                  >
+                    Show all destinations
+                  </button>
+                </p>
+              ) : (
+                <button
+                  className="govuk-button govuk-button--secondary govuk-!-margin-bottom-0"
+                  onClick={() => setShowFilter((v) => !v)}
+                >
+                  {showFilter ? 'Cancel filter' : 'Filter by destination'}
+                </button>
+              )}
             </div>
-          ) : (
-            <button
-              className="filter-toggle-btn"
-              onClick={() => setShowFilter((v) => !v)}
-            >
-              {showFilter ? 'Cancel' : '+ Filter by destination'}
-            </button>
-          )}
 
-          <label className="departed-toggle" title="Show departed trains">
-            <span className="departed-toggle-label">Departed</span>
-            <span className={`toggle-track${showDeparted ? ' on' : ''}`}>
-              <span className="toggle-thumb" />
-            </span>
-            <input
-              type="checkbox"
-              checked={showDeparted}
-              onChange={(e) => setShowDeparted(e.target.checked)}
-              style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }}
-            />
-          </label>
-        </div>
-
-        {/* Destination search */}
-        {showFilter && (
-          <>
-            <div className="filter-search-wrap search-wrap">
-              <svg
-                className="search-icon"
-                viewBox="0 0 18 18"
-                fill="none"
-                aria-hidden="true"
-              >
-                <circle cx="7.5" cy="7.5" r="5.5" stroke="currentColor" strokeWidth="1.5" />
-                <path
-                  d="M12 12l3.5 3.5"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
+            <div className="govuk-checkboxes govuk-checkboxes--small" style={{ marginBottom: 0 }}>
+              <div className="govuk-checkboxes__item">
+                <input
+                  className="govuk-checkboxes__input"
+                  id="show-departed"
+                  type="checkbox"
+                  checked={showDeparted}
+                  onChange={(e) => setShowDeparted(e.target.checked)}
                 />
-              </svg>
+                <label className="govuk-checkboxes__label" htmlFor="show-departed">
+                  Show departed
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Destination filter search */}
+          {showFilter && !to && (
+            <div className="govuk-form-group">
+              <label className="govuk-label" htmlFor="dest-filter">
+                Search destination station
+              </label>
               <input
+                className="govuk-input govuk-input--width-20"
+                id="dest-filter"
                 type="search"
-                className="search-input"
-                placeholder="Search destination…"
                 value={filterSearch}
                 onChange={(e) => setFilterSearch(e.target.value)}
                 autoFocus
@@ -235,192 +283,137 @@ export default function StationPage() {
                 autoCapitalize="off"
                 spellCheck="false"
               />
+              {filterResults.length > 0 && (
+                <ul className="route-list" style={{ marginTop: 4, maxWidth: '320px' }}>
+                  {filterResults.map((s) => (
+                    <li key={s.crs}>
+                      <button className="route-link" onClick={() => applyFilter(s.crs)}>
+                        <span>{s.name}</span>
+                        <span className="route-meta">{s.crs}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
+          )}
 
-            {filterResults.length > 0 && (
-              <div className="search-results">
-                {filterResults.map((s) => (
-                  <div
-                    key={s.crs}
-                    className="search-result-item"
-                    onClick={() => applyFilter(s.crs)}
-                  >
-                    <span className="search-result-name">{s.name}</span>
-                    <span className="search-result-crs">{s.crs}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Refresh bar */}
-        <div className="refresh-bar">
-          <span className="refresh-text">
-            <span className={`live-dot${error && data ? ' error' : ''}`} />
-            {error && data
-              ? 'Connection lost · tap Refresh to retry'
-              : loading && data
-              ? 'Updating…'
-              : `Live · updates in ${countdown}s`}
-          </span>
-          <button className="refresh-btn" onClick={() => fetchData(numRowsRef.current)}>
-            Refresh now
-          </button>
-        </div>
-
-        {/* Loading */}
-        {loading && !data && (
-          <div className="loading-state">
-            <div className="spinner" />
-            <span>Loading departures…</span>
-          </div>
-        )}
-
-        {/* Error (initial load only — refresh errors keep data visible above) */}
-        {error && !data && (
-          <div className="error-card">
-            <div>{error}</div>
-            <button className="error-retry" onClick={() => fetchData(numRowsRef.current)}>
-              Try again
+          {/* Refresh bar */}
+          <div className="refresh-bar">
+            <p className="govuk-body-s govuk-!-margin-bottom-0">
+              <span className="live-dot" aria-hidden="true" />
+              {loading && data ? 'Updating…' : `Refreshes in ${countdown}s`}
+            </p>
+            <button className="refresh-btn" onClick={() => fetchData(numRowsRef.current)}>
+              Refresh now
             </button>
           </div>
-        )}
 
-        {/* Departures */}
-        {data && (
-          <>
-            {data.services.length === 0 ? (
-              <div className="empty-state">
-                <div className="empty-title">No departures found</div>
-                <div>
-                  {to
-                    ? `No trains to ${filterName} in the next 2 hours`
-                    : 'No departures in the next 2 hours'}
+          {/* Loading */}
+          {loading && !data && (
+            <div className="spinner-wrap">
+              <div className="spinner" role="status" aria-label="Loading departures" />
+            </div>
+          )}
+
+          {/* Error */}
+          {error && (
+            <div className="govuk-error-summary" data-module="govuk-error-summary">
+              <div role="alert">
+                <h2 className="govuk-error-summary__title">There is a problem</h2>
+                <div className="govuk-error-summary__body">
+                  <p className="govuk-body">{error}</p>
+                  <button
+                    className="govuk-button govuk-button--secondary"
+                    onClick={() => fetchData(numRowsRef.current)}
+                  >
+                    Try again
+                  </button>
                 </div>
               </div>
-            ) : (
-              <>
-                <div className="departures-list">
-                  {data.services
-                    .filter((s) => showDeparted || getStatus(s).type !== 'departed')
-                    .map((service, i) => (
-                      <DepartureCard key={i} service={service} />
-                    ))}
+            </div>
+          )}
+
+          {/* Departures table */}
+          {data && !error && (
+            <>
+              {visibleServices.length === 0 ? (
+                <div className="govuk-inset-text">
+                  <p className="govuk-body">
+                    {to
+                      ? `No trains to ${filterName} in the next 2 hours.`
+                      : 'No departures in the next 2 hours.'}
+                  </p>
                 </div>
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <table className="govuk-table">
+                    <caption className="govuk-table__caption govuk-visually-hidden">
+                      Departures from {stationName}{filterName ? ` to ${filterName}` : ''}
+                    </caption>
+                    <thead className="govuk-table__head">
+                      <tr className="govuk-table__row">
+                        <th className="govuk-table__header" scope="col">Departs</th>
+                        <th className="govuk-table__header" scope="col">Destination</th>
+                        <th className="govuk-table__header" scope="col">Status</th>
+                        <th className="govuk-table__header" scope="col">Plat.</th>
+                        <th className="govuk-table__header" scope="col">
+                          <span className="govuk-visually-hidden">Calling points</span>
+                        </th>
+                      </tr>
+                    </thead>
+                    {visibleServices.map((service, i) => (
+                      <ServiceRows key={i} service={service} />
+                    ))}
+                  </table>
+                </div>
+              )}
 
-                <div ref={sentinelRef} />
+              <div ref={sentinelRef} />
 
-                {loadingMore && (
-                  <div className="loading-more">
-                    <div className="spinner" />
-                  </div>
-                )}
+              {loadingMore && (
+                <div className="spinner-wrap">
+                  <div className="spinner spinner--sm" role="status" aria-label="Loading more" />
+                </div>
+              )}
 
-                {reachedEnd && data.services.length > 0 && (
-                  <div className="end-of-list">
-                    {to ? (
-                      <>
-                        All trains to {filterName} shown ·{' '}
-                        <button className="end-of-list-btn" onClick={clearFilter}>
-                          Show all departures
-                        </button>
-                      </>
-                    ) : (
-                      'No more departures in the next 2 hours'
-                    )}
-                  </div>
-                )}
-              </>
-            )}
-          </>
-        )}
+              {reachedEnd && visibleServices.length > 0 && (
+                <div className="end-of-list">
+                  {to ? (
+                    <>
+                      All trains to {filterName} shown &middot;{' '}
+                      <button className="end-of-list-btn" onClick={clearFilter}>
+                        Show all departures
+                      </button>
+                    </>
+                  ) : (
+                    'No more departures in the next 2 hours'
+                  )}
+                </div>
+              )}
+            </>
+          )}
+        </main>
       </div>
+
+      <footer className="govuk-footer">
+        <div className="govuk-width-container">
+          <div className="govuk-footer__meta">
+            <div className="govuk-footer__meta-item govuk-footer__meta-item--grow">
+              <p className="govuk-body-s" style={{ color: 'var(--govuk-secondary-text-colour)' }}>
+                Live data from National Rail Darwin OpenLDB
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </>
   )
 }
 
-// ─── Departure card ────────────────────────────────────────────
+// ─── Service rows (one tbody per service) ────────────────────────
 
-function getStatus(service) {
-  if (service.cancelled) return { type: 'cancelled', label: 'Cancelled' }
-
-  const etd = service.etd
-
-  if (etd === 'Delayed') return { type: 'delayed', label: 'Delayed' }
-
-  // For "On time" or no etd, use std to detect departure
-  if (!etd || etd === 'On time') {
-    if (!service.std) return { type: 'on-time', label: 'On time' }
-    const [h, m] = service.std.split(':').map(Number)
-    const now = new Date()
-    if (now.getHours() * 60 + now.getMinutes() > h * 60 + m)
-      return { type: 'departed', label: 'Departed' }
-    return { type: 'on-time', label: 'On time' }
-  }
-
-  // etd is a specific revised time — only mark departed if that time has passed
-  const [h, m] = etd.split(':').map(Number)
-  const now = new Date()
-  const etdMins = h * 60 + m
-  const nowMins = now.getHours() * 60 + now.getMinutes()
-  if (nowMins > etdMins) return { type: 'departed', label: 'Departed' }
-  return { type: 'delayed', label: `Exp ${etd}` }
-}
-
-function buildCallingText(names, visibleCount) {
-  const visible = names.slice(0, visibleCount)
-  const more = names.length - visibleCount
-  const joined =
-    visible.length === 1
-      ? visible[0]
-      : `${visible.slice(0, -1).join(', ')} and ${visible[visible.length - 1]}`
-  return more > 0
-    ? `Calling at ${visible.join(', ')} and ${more} more`
-    : `Calling at ${joined}`
-}
-
-// Renders the calling-points summary line, reducing visible station count
-// one-by-one (synchronously, before paint) until the text fits on one line.
-function CallingPoints({ callingPoints }) {
-  const names = callingPoints.map((cp) => cp.name)
-  const [count, setCount] = useState(names.length)
-  const spanRef = useRef(null)
-
-  // Reset to full count whenever the service changes
-  useLayoutEffect(() => {
-    setCount(names.length)
-  }, [callingPoints]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // After each render, shrink by one if still overflowing
-  useLayoutEffect(() => {
-    const el = spanRef.current
-    if (!el || count <= 1) return
-    if (el.scrollWidth > el.clientWidth) {
-      setCount((c) => c - 1)
-    }
-  })
-
-  // Re-measure on resize (e.g. orientation change)
-  useEffect(() => {
-    const el = spanRef.current
-    if (!el) return
-    const ro = new ResizeObserver(() => setCount(names.length))
-    ro.observe(el.parentElement)
-    return () => ro.disconnect()
-  }, [names.length])
-
-  return (
-    <span
-      ref={spanRef}
-      style={{ display: 'block', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}
-    >
-      {buildCallingText(names, count)}
-    </span>
-  )
-}
-
-function DepartureCard({ service }) {
+function ServiceRows({ service }) {
   const [showCalling, setShowCalling] = useState(false)
   const [callingPoints, setCallingPoints] = useState(null)
   const [callingLoading, setCallingLoading] = useState(false)
@@ -429,7 +422,6 @@ function DepartureCard({ service }) {
   const status = getStatus(service)
   const destText = service.destinations.map((d) => d.name).join(' & ')
   const viaText = service.destinations.map((d) => d.via).filter(Boolean).join(' & ')
-  const timeClass = status.type
 
   const toggleCalling = async () => {
     const next = !showCalling
@@ -450,103 +442,86 @@ function DepartureCard({ service }) {
     }
   }
 
-  // Summary text for the toggle button — show destination(s) when collapsed
-  const summaryText = callingPoints
-    ? null // CallingPoints component handles it
-    : `Calling at ${service.destinations.map((d) => d.name).join(' & ')}`
-
   return (
-    <div className="dep-card">
-      <div className="dep-main">
-        {/* Time + status */}
-        <div className="dep-time-col">
-          <div className={`dep-std ${timeClass}`}>{service.std || '??:??'}</div>
-          {status.label && (
-            <div className={`dep-etd ${timeClass}`}>{status.label}</div>
+    <tbody className="govuk-table__body">
+      <tr className="govuk-table__row">
+        <td className="govuk-table__cell">
+          <span className="dep-time">{service.std || '??:??'}</span>
+          {status.type === 'delayed' && service.etd && service.etd !== 'Delayed' && (
+            <div className="dep-etd">Exp. {service.etd}</div>
           )}
-        </div>
+        </td>
 
-        {/* Destination + operator */}
-        <div className="dep-info-col">
-          <div className="dep-destination">{destText}</div>
+        <td className="govuk-table__cell">
+          <div>{destText}</div>
           {viaText && (
-            <div className="dep-operator" style={{ fontStyle: 'italic' }}>
-              {viaText}
-            </div>
+            <div className="govuk-body-s govuk-hint" style={{ marginBottom: 0 }}>{viaText}</div>
           )}
-          <div className="dep-operator">{service.operator}</div>
-        </div>
+          <div className="govuk-body-s govuk-hint" style={{ marginBottom: 0 }}>{service.operator}</div>
+        </td>
 
-        {/* Platform */}
-        <div className="dep-platform-col">
-          <div className="dep-plat-label">Plat</div>
-          {service.platform ? (
-            <div className="dep-plat-number">{service.platform}</div>
-          ) : (
-            <div className="dep-plat-tbc">TBC</div>
-          )}
-        </div>
-      </div>
+        <td className="govuk-table__cell">
+          <strong className={`govuk-tag ${STATUS_TAG[status.type] ?? ''}`}>
+            {status.label}
+          </strong>
+        </td>
 
-      {/* Calling points toggle — always shown if service has an ID */}
-      {service.serviceID && (
-        <>
-          <button
-            className="calling-toggle"
-            onClick={toggleCalling}
-          >
-            <svg
-              className={`calling-toggle-chevron${showCalling ? ' open' : ''}`}
-              width="12"
-              height="7"
-              viewBox="0 0 12 7"
-              fill="none"
-              aria-hidden="true"
+        <td className="govuk-table__cell" style={{ textAlign: 'center' }}>
+          {service.platform
+            ? <span className="dep-plat">{service.platform}</span>
+            : <span className="govuk-hint">TBC</span>
+          }
+        </td>
+
+        <td className="govuk-table__cell">
+          {service.serviceID && (
+            <button
+              className="dep-toggle-btn"
+              onClick={toggleCalling}
+              aria-expanded={showCalling}
             >
-              <path
-                d="M1 1l5 5 5-5"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            {callingPoints ? (
-              <CallingPoints callingPoints={callingPoints} />
-            ) : (
-              <span style={{ overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', display: 'block' }}>
-                Load calling points…
-              </span>
-            )}
-          </button>
-
-          {showCalling && (
-            <div className="calling-list">
-              {callingLoading && (
-                <div style={{ display: 'flex', justifyContent: 'center', padding: '8px 0' }}>
-                  <div className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} />
-                </div>
-              )}
-              {callingError && (
-                <div style={{ color: 'var(--red)', fontSize: 13 }}>{callingError}</div>
-              )}
-              {callingPoints && callingPoints.map((cp, i) => {
-                const timeStr = cp.at || (cp.et && cp.et !== 'On time' ? cp.et : cp.st) || '—'
-                const isDelayed = !cp.at && cp.et && cp.et !== 'On time'
-                const isCancelled = cp.cancelled
-                return (
-                  <div key={i} className="calling-row">
-                    <span className="calling-name">{cp.name}</span>
-                    <span className={`calling-time${isCancelled ? ' cancelled' : isDelayed ? ' delayed' : ''}`}>
-                      {timeStr}
-                    </span>
-                  </div>
-                )
-              })}
-            </div>
+              {showCalling ? 'Hide stops' : 'Show stops'}
+            </button>
           )}
-        </>
+        </td>
+      </tr>
+
+      {showCalling && (
+        <tr className="govuk-table__row dep-calling-row">
+          <td className="govuk-table__cell" colSpan={5}>
+            {callingLoading && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div className="spinner spinner--sm" />
+                <span className="govuk-body-s">Loading…</span>
+              </div>
+            )}
+            {callingError && (
+              <p className="govuk-error-message">{callingError}</p>
+            )}
+            {callingPoints && (
+              <ul className="dep-calling-list govuk-body-s">
+                {callingPoints.map((cp, i) => {
+                  const timeStr = cp.at || cp.et || cp.st || '—'
+                  const isDelayed = cp.et && cp.et !== 'On time' && cp.et !== cp.st
+                  return (
+                    <li key={i}>
+                      <span>{cp.name}</span>
+                      <span className={`dep-calling-time${cp.cancelled ? ' cancelled' : isDelayed ? ' delayed' : ''}`}>
+                        {timeStr}
+                        {cp.cancelled && (
+                          <strong className="govuk-tag govuk-tag--red govuk-!-margin-left-1" style={{ fontSize: '0.75rem' }}>
+                            Cancelled
+                          </strong>
+                        )}
+                      </span>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+          </td>
+        </tr>
       )}
-    </div>
+    </tbody>
   )
 }

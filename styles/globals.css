@@ -1,896 +1,236 @@
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+/* ─── Custom styles on top of govuk-frontend ─────────────────── */
+
+/* Live pulse dot */
+.live-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00703c;
+  vertical-align: middle;
+  margin-right: 6px;
+  animation: pulse 2s ease-in-out infinite;
 }
 
-:root {
-  /* Backgrounds */
-  --bg: #000000;
-  --bg-secondary: #1c1c1e;
-  --bg-tertiary: #2c2c2e;
-  --fill: #3a3a3c;
-
-  /* Text */
-  --label: #ffffff;
-  --label-secondary: rgba(235, 235, 245, 0.6);
-  --label-tertiary: rgba(235, 235, 245, 0.3);
-
-  /* Accent colours */
-  --blue: #0a84ff;
-  --green: #30d158;
-  --orange: #ff9f0a;
-  --red: #ff453a;
-
-  /* Chrome */
-  --separator: rgba(84, 84, 88, 0.65);
-  --radius: 12px;
-  --radius-sm: 8px;
-
-  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
-  --font-mono: 'SF Mono', ui-monospace, 'Cascadia Code', 'Consolas', monospace;
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
 }
 
-html {
-  background: var(--bg);
-}
+/* ─── Departure table ─────────────────────────────────────────── */
 
-body {
-  background: var(--bg);
-  color: var(--label);
-  font-family: var(--font);
-  font-size: 16px;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  /* Honour iPhone notch / home bar */
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-/* ─── Layout ─────────────────────────────────────────────────── */
-
-.container {
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 0 16px;
-}
-
-/* ─── Navigation bar ─────────────────────────────────────────── */
-
-.navbar {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border-bottom: 0.5px solid var(--separator);
-  /* Push content below status bar on iPhone */
-  padding: max(12px, calc(env(safe-area-inset-top) + 8px)) 16px 12px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-height: 44px;
-}
-
-.navbar-title {
-  font-size: 17px;
-  font-weight: 600;
-  letter-spacing: -0.4px;
-  flex: 1;
-}
-
-.navbar-subtitle {
-  font-size: 13px;
-  color: var(--label-secondary);
-  font-weight: 400;
-  letter-spacing: 0;
-}
-
-.large-title {
-  font-size: 34px;
+.dep-time {
+  font-size: 1.25rem;
   font-weight: 700;
-  letter-spacing: -0.5px;
-  padding: 12px 16px 4px;
-}
-
-/* ─── Back button ────────────────────────────────────────────── */
-
-.back-btn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: var(--blue);
-  background: none;
-  border: none;
-  font-size: 17px;
-  font-family: var(--font);
-  cursor: pointer;
-  padding: 0;
-  -webkit-tap-highlight-color: transparent;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
-/* ─── Section headers ────────────────────────────────────────── */
-
-.section-header {
-  font-size: 13px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--label-secondary);
-  padding: 20px 0 8px;
+.dep-etd {
+  font-size: 0.875rem;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--govuk-secondary-text-colour);
 }
 
-/* ─── Preset cards ───────────────────────────────────────────── */
-
-.preset-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.dep-plat {
+  font-size: 1.375rem;
+  font-weight: 700;
+  text-align: center;
 }
 
-.preset-card {
-  background: var(--bg-secondary);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border: none;
-  width: 100%;
-  text-align: left;
-  color: var(--label);
-  font-family: var(--font);
-  -webkit-tap-highlight-color: transparent;
-  transition: opacity 0.12s;
-  gap: 12px;
+.dep-calling-row td {
+  background-color: var(--govuk-surface-background-colour);
+  padding-top: 0 !important;
 }
 
-.preset-card:active {
-  opacity: 0.55;
+.dep-calling-list {
+  margin: 0 !important;
 }
 
-.preset-card-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--label-secondary);
-  margin-bottom: 2px;
-}
-
-.preset-card-route {
-  font-size: 17px;
-  font-weight: 600;
-}
-
-.preset-card-arrow {
-  color: var(--label-secondary);
-  margin: 0 3px;
-  font-weight: 400;
-}
-
-.preset-card-chevron {
-  flex-shrink: 0;
-  color: var(--label-tertiary);
-}
-
-/* ─── Search ─────────────────────────────────────────────────── */
-
-.search-wrap {
-  position: relative;
-  padding: 4px 0;
-}
-
-.search-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--label-tertiary);
-  pointer-events: none;
-  width: 16px;
-  height: 16px;
-}
-
-.search-input {
-  width: 100%;
-  background: var(--bg-secondary);
-  border: none;
-  border-radius: var(--radius);
-  padding: 11px 16px 11px 38px;
-  font-size: 17px;
-  color: var(--label);
-  font-family: var(--font);
-  outline: none;
-  -webkit-appearance: none;
-}
-
-.search-input::placeholder {
-  color: var(--label-tertiary);
-}
-
-.search-results {
-  background: var(--bg-secondary);
-  border-radius: var(--radius);
-  margin-top: 6px;
-  overflow: hidden;
-}
-
-.search-result-item {
-  padding: 12px 16px;
-  border-bottom: 0.5px solid var(--separator);
-  cursor: pointer;
+.dep-calling-list li {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  -webkit-tap-highlight-color: transparent;
+  align-items: baseline;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--govuk-border-colour);
+  gap: 16px;
 }
 
-.search-result-item:last-child {
+.dep-calling-list li:last-child {
   border-bottom: none;
 }
 
-.search-result-item:active {
-  background: var(--bg-tertiary);
-}
-
-.search-result-name {
-  font-size: 17px;
-}
-
-.search-result-crs {
-  font-size: 13px;
+.dep-calling-time {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
   font-weight: 600;
-  color: var(--label-secondary);
-  font-family: var(--font-mono);
-  letter-spacing: 0.5px;
 }
 
-/* ─── Filter strip ───────────────────────────────────────────── */
+.dep-calling-time.delayed  { color: #f47738; }
+.dep-calling-time.cancelled { color: var(--govuk-error-colour); text-decoration: line-through; }
 
-.filter-strip {
-  padding: 10px 0 4px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.filter-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(10, 132, 255, 0.15);
-  color: var(--blue);
-  border-radius: 100px;
-  padding: 5px 10px 5px 12px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.filter-pill-clear {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  background: rgba(10, 132, 255, 0.25);
+.dep-toggle-btn {
+  background: none;
   border: none;
-  border-radius: 50%;
-  color: var(--blue);
-  font-size: 14px;
-  line-height: 1;
+  padding: 0;
   cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  font-family: var(--font);
+  font-family: "GDS Transport", arial, sans-serif;
+  font-size: 1rem;
+  color: var(--govuk-link-colour);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  white-space: nowrap;
 }
 
-.filter-toggle-btn {
-  background: var(--bg-secondary);
-  border: none;
-  border-radius: 100px;
-  padding: 6px 14px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--blue);
-  font-family: var(--font);
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
+.dep-toggle-btn:hover {
+  color: var(--govuk-link-hover-colour);
 }
 
-.filter-toggle-btn:active {
-  opacity: 0.6;
+/* ─── Status tags ─────────────────────────────────────────────── */
+
+/* govuk-tag--orange doesn't exist in the palette; define it */
+.govuk-tag--orange {
+  background: #f47738;
+  color: #fff;
 }
 
-/* Departed toggle */
-.departed-toggle {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: auto;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  user-select: none;
-}
-
-.departed-toggle-label {
-  font-size: 13px;
-  color: var(--label-secondary);
-}
-
-.toggle-track {
-  position: relative;
-  display: inline-block;
-  width: 44px;
-  height: 26px;
-  background: var(--fill);
-  border-radius: 100px;
-  transition: background 0.2s;
-  flex-shrink: 0;
-}
-
-.toggle-track.on {
-  background: var(--green);
-}
-
-.toggle-thumb {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 20px;
-  height: 20px;
-  background: #fff;
-  border-radius: 50%;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-  transition: transform 0.2s;
-}
-
-.toggle-track.on .toggle-thumb {
-  transform: translateX(18px);
-}
-
-.filter-search-wrap {
-  padding: 4px 0;
-}
-
-/* ─── Refresh indicator ──────────────────────────────────────── */
+/* ─── Refresh bar ─────────────────────────────────────────────── */
 
 .refresh-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 0 10px;
-}
-
-.refresh-text {
-  font-size: 12px;
-  color: var(--label-tertiary);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.live-dot {
-  display: inline-block;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--green);
-  flex-shrink: 0;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50%       { opacity: 0.4; transform: scale(0.75); }
-}
-
-.live-dot.error {
-  background: var(--red);
-  animation: none;
+  margin-bottom: 15px;
 }
 
 .refresh-btn {
   background: none;
   border: none;
-  color: var(--blue);
-  font-size: 13px;
-  font-family: var(--font);
-  cursor: pointer;
   padding: 0;
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* ─── Departures list ────────────────────────────────────────── */
-
-.departures-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-bottom: 40px;
-}
-
-/* ─── Departure card ─────────────────────────────────────────── */
-
-.dep-card {
-  background: var(--bg-secondary);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-
-.dep-main {
-  padding: 14px 16px;
-  display: grid;
-  /* [time] [dest+info] [platform] */
-  grid-template-columns: 72px 1fr auto;
-  gap: 0 20px;
-  align-items: center;
-}
-
-.dep-time-col {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.dep-std {
-  font-size: 30px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-
-.dep-std.on-time  { color: var(--label); }
-.dep-std.delayed  { color: var(--orange); }
-.dep-std.cancelled { color: var(--label); opacity: 0.4; text-decoration: line-through; }
-
-.dep-etd {
-  font-size: 12px;
-  font-weight: 600;
-  margin-top: 3px;
-}
-.dep-etd.on-time   { color: var(--green); }
-.dep-etd.delayed   { color: var(--orange); }
-.dep-etd.cancelled { color: var(--red); }
-.dep-etd.departed  { color: var(--label-secondary); }
-
-.dep-info-col {
-  min-width: 0;
-}
-
-.dep-destination {
-  font-size: 17px;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.dep-operator {
-  font-size: 13px;
-  color: var(--label-secondary);
-  margin-top: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.dep-platform-col {
-  text-align: center;
-  min-width: 40px;
-}
-
-.dep-plat-label {
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--label-secondary);
-}
-
-.dep-plat-number {
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  line-height: 1.1;
-}
-
-.dep-plat-tbc {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--label-tertiary);
-  line-height: 1.8;
-}
-
-/* ─── Calling points ─────────────────────────────────────────── */
-
-.calling-toggle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  border: none;
-  background: none;
-  border-top: 0.5px solid var(--separator);
-  padding: 9px 16px;
-  color: var(--label-secondary);
-  font-size: 13px;
-  font-family: var(--font);
   cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  text-align: left;
-  overflow: hidden;
+  font-family: "GDS Transport", arial, sans-serif;
+  font-size: 0.875rem;
+  color: var(--govuk-link-colour);
+  text-decoration: underline;
 }
 
-.calling-toggle:active {
-  background: var(--bg-tertiary);
+/* ─── Station / route cards on home page ─────────────────────── */
+
+.route-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
 }
 
-.calling-toggle-chevron {
-  transition: transform 0.2s;
-  flex-shrink: 0;
-  color: var(--label-tertiary);
+.route-list li {
+  border-bottom: 1px solid var(--govuk-border-colour);
 }
 
-.calling-toggle-chevron.open {
-  transform: rotate(180deg);
+.route-list li:first-child {
+  border-top: 1px solid var(--govuk-border-colour);
 }
 
-.calling-list {
-  padding: 4px 16px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.calling-row {
+.route-list a,
+.route-list button.route-link {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 14px;
+  padding: 12px 0;
+  color: var(--govuk-link-colour);
+  text-decoration: none;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-family: "GDS Transport", arial, sans-serif;
+  font-size: 1rem;
 }
 
-.calling-name {
-  color: var(--label-secondary);
+.route-list a:hover,
+.route-list button.route-link:hover {
+  color: var(--govuk-link-hover-colour);
+  text-decoration: underline;
 }
 
-.calling-time {
-  font-variant-numeric: tabular-nums;
-  font-weight: 500;
-  font-size: 14px;
+.route-list .route-meta {
+  font-size: 0.875rem;
+  color: var(--govuk-secondary-text-colour);
 }
-.calling-time.delayed   { color: var(--orange); }
-.calling-time.cancelled { color: var(--red); text-decoration: line-through; opacity: 0.7; }
 
-/* ─── Loading / error / empty states ────────────────────────── */
+.route-delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--govuk-secondary-text-colour);
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 0 0 0 12px;
+  font-family: "GDS Transport", arial, sans-serif;
+}
 
-.loading-state {
+.route-delete-btn:hover {
+  color: var(--govuk-error-colour);
+}
+
+/* ─── End of list ─────────────────────────────────────────────── */
+
+.end-of-list {
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--govuk-secondary-text-colour);
+  padding: 20px 0 40px;
+}
+
+.end-of-list-btn {
+  background: none;
+  border: none;
+  color: var(--govuk-link-colour);
+  font-size: 0.875rem;
+  font-family: "GDS Transport", arial, sans-serif;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+/* ─── Loading / spinner ───────────────────────────────────────── */
+
+.spinner-wrap {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  padding: 64px 0;
-  gap: 14px;
-  color: var(--label-secondary);
-  font-size: 15px;
+  padding: 40px 0;
 }
 
 .spinner {
-  width: 28px;
-  height: 28px;
-  border: 2.5px solid var(--fill);
-  border-top-color: var(--blue);
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--govuk-border-colour);
+  border-top-color: var(--govuk-brand-colour);
   border-radius: 50%;
   animation: spin 0.75s linear infinite;
+}
+
+.spinner--sm {
+  width: 18px;
+  height: 18px;
+  border-width: 2px;
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-.error-card {
-  background: rgba(255, 69, 58, 0.1);
-  border-radius: var(--radius);
-  padding: 16px;
-  text-align: center;
-  color: var(--red);
-  font-size: 15px;
-  margin: 8px 0;
-}
+/* ─── Filter tag ──────────────────────────────────────────────── */
 
-.error-retry {
-  display: inline-block;
-  margin-top: 8px;
-  background: none;
-  border: none;
-  color: var(--red);
-  font-size: 14px;
-  font-family: var(--font);
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 56px 0;
-  color: var(--label-secondary);
-}
-
-.empty-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--label);
-  margin-bottom: 6px;
-}
-
-.loading-more {
+.filter-controls {
   display: flex;
-  justify-content: center;
-  padding: 16px 0 32px;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
 }
 
-.end-of-list {
-  text-align: center;
-  font-size: 13px;
-  color: var(--label-tertiary);
-  padding: 16px 0 40px;
-}
-
-/* ─── Section header row (with optional action button) ──────────── */
-
-.section-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 0 8px;
-}
-
-.section-edit-btn {
-  background: none;
-  border: none;
-  color: var(--blue);
-  font-size: 15px;
-  font-weight: 400;
-  font-family: var(--font);
-  cursor: pointer;
-  padding: 0;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.section-edit-btn:active {
-  opacity: 0.55;
-}
-
-/* ─── Quick routes 2-column grid ────────────────────────────────── */
-
-.quick-routes-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.quick-routes-grid .add-route-btn,
-.quick-routes-grid .add-route-form {
-  grid-column: 1 / -1;
-}
-
-/* ─── Custom routes ──────────────────────────────────────────────── */
-
-.custom-route-card {
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.custom-route-card:active {
-  opacity: 0.55;
-}
-
-.route-delete-btn {
-  flex-shrink: 0;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: none;
-  background: var(--fill);
-  color: var(--label-secondary);
-  font-size: 18px;
-  line-height: 1;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  -webkit-tap-highlight-color: transparent;
-  font-family: var(--font);
-}
-
-.route-delete-btn:active {
-  background: var(--red);
-  color: #fff;
-  opacity: 1;
-}
-
-.add-route-btn {
-  background: var(--bg-secondary);
-  border: 1.5px dashed var(--fill);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  color: var(--blue);
-  font-size: 15px;
-  font-weight: 500;
-  font-family: var(--font);
-  cursor: pointer;
-  width: 100%;
-  text-align: center;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.add-route-btn:active {
-  opacity: 0.6;
-}
-
-.add-route-form {
-  background: var(--bg-secondary);
-  border-radius: var(--radius);
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.add-route-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.add-route-label {
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--label-secondary);
-}
-
-.add-route-optional {
-  font-weight: 400;
-  text-transform: none;
-  letter-spacing: 0;
-  color: var(--label-tertiary);
-}
-
-.add-route-input {
-  width: 100%;
-  background: var(--bg-tertiary);
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 10px 12px;
-  font-size: 16px;
-  color: var(--label);
-  font-family: var(--font);
-  outline: none;
-  -webkit-appearance: none;
-}
-
-.add-route-input::placeholder {
-  color: var(--label-tertiary);
-}
-
-.add-route-results {
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-}
-
-.add-route-result-item {
-  padding: 10px 12px;
-  border-bottom: 0.5px solid var(--separator);
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 15px;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.add-route-result-item:last-child {
-  border-bottom: none;
-}
-
-.add-route-result-item:active {
-  background: var(--fill);
-}
-
-.add-route-selected {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-sm);
-  padding: 10px 12px;
-  font-size: 16px;
-}
-
-.add-route-clear {
-  background: none;
-  border: none;
-  color: var(--label-tertiary);
-  font-size: 20px;
-  line-height: 1;
-  cursor: pointer;
-  padding: 0;
-  font-family: var(--font);
-  -webkit-tap-highlight-color: transparent;
-}
-
-.add-route-actions {
-  display: flex;
-  gap: 10px;
-  padding-top: 2px;
-}
-
-.add-route-cancel {
-  flex: 1;
-  background: var(--bg-tertiary);
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 12px;
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--label-secondary);
-  font-family: var(--font);
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.add-route-cancel:active {
-  opacity: 0.6;
-}
-
-.add-route-save {
-  flex: 2;
-  background: var(--blue);
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 12px;
-  font-size: 15px;
-  font-weight: 600;
-  color: #fff;
-  font-family: var(--font);
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.add-route-save:disabled {
-  opacity: 0.35;
-  cursor: default;
-}
-
-.add-route-save:not(:disabled):active {
-  opacity: 0.8;
-}
-
-/* ─── Nearby loading ─────────────────────────────────────────────── */
-
-.nearby-loading {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
-  color: var(--label-secondary);
-  font-size: 15px;
-  background: var(--bg-secondary);
-  border-radius: var(--radius);
-}
-
-.end-of-list-btn {
-  background: none;
-  border: none;
-  color: var(--blue);
-  font-size: 13px;
-  font-family: var(--font);
-  cursor: pointer;
-  padding: 0;
-  -webkit-tap-highlight-color: transparent;
+.filter-controls .govuk-form-group {
+  margin-bottom: 0;
 }
