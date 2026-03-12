@@ -505,18 +505,15 @@ function ServiceRows({ service }) {
             {callingPoints && (
               <ul className="dep-calling-list govuk-body-s">
                 {callingPoints.map((cp, i) => {
-                  const timeStr = cp.at || cp.et || cp.st || '—'
+                  // Show actual time if arrived, otherwise expected, falling back to scheduled.
+                  // When et is 'On time', show the scheduled time (st) — 'On time' is not a time.
+                  const timeStr = cp.at || (cp.et && cp.et !== 'On time' ? cp.et : cp.st) || '—'
                   const isDelayed = cp.et && cp.et !== 'On time' && cp.et !== cp.st
                   return (
                     <li key={i}>
                       <span>{cp.name}</span>
                       <span className={`dep-calling-time${cp.cancelled ? ' cancelled' : isDelayed ? ' delayed' : ''}`}>
                         {timeStr}
-                        {cp.cancelled && (
-                          <strong className="govuk-tag govuk-tag--red govuk-!-margin-left-1" style={{ fontSize: '0.75rem' }}>
-                            Cancelled
-                          </strong>
-                        )}
                       </span>
                     </li>
                   )
