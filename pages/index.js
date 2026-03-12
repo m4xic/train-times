@@ -46,9 +46,9 @@ function GovHeader() {
   return (
     <header className="govuk-header">
       <div className="govuk-header__container govuk-width-container">
-        <div className="govuk-header__content">
-          <a href="/" className="govuk-header__link govuk-header__service-name">
-            Train Times
+        <div className="govuk-header__logo">
+          <a href="/" className="govuk-header__homepage-link">
+            <span className="govuk-header__product-name">Train Times</span>
           </a>
         </div>
       </div>

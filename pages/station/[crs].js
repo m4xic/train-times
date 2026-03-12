@@ -29,7 +29,7 @@ function getStatus(service) {
   const now = new Date()
   if (now.getHours() * 60 + now.getMinutes() > h * 60 + m)
     return { type: 'departed', label: 'Departed' }
-  return { type: 'delayed', label: etd }
+  return { type: 'delayed', label: 'Delayed' }
 }
 
 const STATUS_TAG = {
@@ -45,9 +45,9 @@ function GovHeader() {
   return (
     <header className="govuk-header">
       <div className="govuk-header__container govuk-width-container">
-        <div className="govuk-header__content">
-          <a href="/" className="govuk-header__link govuk-header__service-name">
-            Train Times
+        <div className="govuk-header__logo">
+          <a href="/" className="govuk-header__homepage-link">
+            <span className="govuk-header__product-name">Train Times</span>
           </a>
         </div>
       </div>
@@ -467,10 +467,14 @@ function ServiceRows({ service }) {
         </td>
 
         <td className="govuk-table__cell dep-td-plat" style={{ textAlign: 'center' }}>
-          {service.platform
-            ? <span className="dep-plat">{service.platform}</span>
-            : <span className="govuk-hint">TBC</span>
-          }
+          {service.platform ? (
+            <>
+              <span className="dep-plat-lbl">Plat</span>
+              <span className="dep-plat">{service.platform}</span>
+            </>
+          ) : (
+            <span className="govuk-hint">TBC</span>
+          )}
         </td>
 
         <td className="govuk-table__cell dep-td-stops">

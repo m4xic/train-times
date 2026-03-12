@@ -1,3 +1,11 @@
+/* ─── Base font (govuk-frontend v6 doesn't set font-family on body) ── */
+
+body {
+  font-family: "GDS Transport", arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 /* ─── Custom styles on top of govuk-frontend ─────────────────── */
 
 /* Live pulse dot */
@@ -33,10 +41,22 @@
   color: var(--govuk-secondary-text-colour);
 }
 
+.dep-plat-lbl {
+  display: none; /* shown only on mobile via responsive CSS */
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--govuk-secondary-text-colour);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
 .dep-plat {
+  display: block;
   font-size: 1.375rem;
   font-weight: 700;
   text-align: center;
+  line-height: 1.1;
 }
 
 .dep-calling-row td {
@@ -269,7 +289,7 @@
   /* Each service tbody becomes a bordered row */
   .dep-table tbody {
     border-top: 1px solid var(--govuk-border-colour);
-    padding: 12px 0;
+    padding: 14px 0;
     width: auto;
   }
 
@@ -277,29 +297,53 @@
     border-bottom: 1px solid var(--govuk-border-colour);
   }
 
-  /* Main service row: CSS grid layout */
+  /* Main service row: explicit grid placement
+     Col 1 (64px): time
+     Col 2 (1fr):  destination
+     Col 3 (56px): platform (spans rows 1-2, prominent)
+
+     Row 1: time      | dest name      | [Plat label]
+     Row 2: exp time  | via · operator | [  12      ]
+     Row 3: status tag | show stops (span cols 2-3)
+  */
   .dep-table tr.govuk-table__row:first-child {
     display: grid;
-    grid-template-columns: 60px 1fr auto;
-    grid-template-areas:
-      "time  dest   status"
-      ".     dest   plat"
-      "stops stops  stops";
-    column-gap: 10px;
-    row-gap: 2px;
+    grid-template-columns: 64px 1fr 56px;
+    column-gap: 12px;
     width: auto;
+    align-items: start;
   }
 
-  .dep-td-time   { grid-area: time;   padding: 0 !important; border: none !important; }
-  .dep-td-dest   { grid-area: dest;   padding: 0 !important; border: none !important; }
-  .dep-td-status { grid-area: status; padding: 0 !important; border: none !important; }
-  .dep-td-plat   { grid-area: plat;   padding: 0 !important; border: none !important; text-align: right !important; }
-  .dep-td-stops  { grid-area: stops;  padding: 6px 0 0 !important; border: none !important; }
+  .dep-td-time   {
+    grid-column: 1; grid-row: 1;
+    padding: 0 !important; border: none !important;
+  }
+  .dep-td-dest   {
+    grid-column: 2; grid-row: 1 / 3;
+    padding: 0 4px 0 0 !important; border: none !important;
+    overflow: hidden;
+  }
+  .dep-td-plat   {
+    grid-column: 3; grid-row: 1 / 3;
+    padding: 0 !important; border: none !important;
+    text-align: center !important;
+  }
+  .dep-td-status {
+    grid-column: 1; grid-row: 3;
+    padding: 8px 0 0 !important; border: none !important;
+  }
+  .dep-td-stops  {
+    grid-column: 2 / 4; grid-row: 3;
+    padding: 8px 0 0 !important; border: none !important;
+  }
 
-  /* Platform: smaller on mobile since it sits inline */
+  /* Platform: large and prominent on mobile */
+  .dep-td-plat .dep-plat-lbl {
+    display: block;
+  }
+
   .dep-td-plat .dep-plat {
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: 1.75rem;
   }
 
   /* Calling points expansion row */
@@ -308,7 +352,7 @@
   }
 
   .dep-table .dep-calling-row td {
-    padding: 4px 0 0 !important;
+    padding: 6px 0 0 !important;
     border: none !important;
     width: auto;
   }
