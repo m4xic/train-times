@@ -346,8 +346,8 @@ export default function StationPage() {
                   </p>
                 </div>
               ) : (
-                <div style={{ overflowX: 'auto' }}>
-                  <table className="govuk-table">
+                <div className="dep-table-wrap">
+                  <table className="govuk-table dep-table">
                     <caption className="govuk-table__caption govuk-visually-hidden">
                       Departures from {stationName}{filterName ? ` to ${filterName}` : ''}
                     </caption>
@@ -445,14 +445,14 @@ function ServiceRows({ service }) {
   return (
     <tbody className="govuk-table__body">
       <tr className="govuk-table__row">
-        <td className="govuk-table__cell">
+        <td className="govuk-table__cell dep-td-time">
           <span className="dep-time">{service.std || '??:??'}</span>
           {status.type === 'delayed' && service.etd && service.etd !== 'Delayed' && (
             <div className="dep-etd">Exp. {service.etd}</div>
           )}
         </td>
 
-        <td className="govuk-table__cell">
+        <td className="govuk-table__cell dep-td-dest">
           <div>{destText}</div>
           {viaText && (
             <div className="govuk-body-s govuk-hint" style={{ marginBottom: 0 }}>{viaText}</div>
@@ -460,20 +460,20 @@ function ServiceRows({ service }) {
           <div className="govuk-body-s govuk-hint" style={{ marginBottom: 0 }}>{service.operator}</div>
         </td>
 
-        <td className="govuk-table__cell">
+        <td className="govuk-table__cell dep-td-status">
           <strong className={`govuk-tag ${STATUS_TAG[status.type] ?? ''}`}>
             {status.label}
           </strong>
         </td>
 
-        <td className="govuk-table__cell" style={{ textAlign: 'center' }}>
+        <td className="govuk-table__cell dep-td-plat" style={{ textAlign: 'center' }}>
           {service.platform
             ? <span className="dep-plat">{service.platform}</span>
             : <span className="govuk-hint">TBC</span>
           }
         </td>
 
-        <td className="govuk-table__cell">
+        <td className="govuk-table__cell dep-td-stops">
           {service.serviceID && (
             <button
               className="dep-toggle-btn"

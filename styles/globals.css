@@ -234,3 +234,82 @@
 .filter-controls .govuk-form-group {
   margin-bottom: 0;
 }
+
+/* ─── Responsive departure table ─────────────────────────────── */
+
+.dep-table-wrap {
+  overflow-x: auto;
+}
+
+/* On small screens, collapse the table into card-like rows */
+@media (max-width: 40.0625em) {
+  .dep-table-wrap {
+    overflow-x: visible;
+  }
+
+  .dep-table,
+  .dep-table thead,
+  .dep-table tbody,
+  .dep-table tr,
+  .dep-table td {
+    display: block;
+    width: 100%;
+  }
+
+  /* Visually hide the thead (keep for accessibility) */
+  .dep-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  /* Each service tbody becomes a bordered row */
+  .dep-table tbody {
+    border-top: 1px solid var(--govuk-border-colour);
+    padding: 12px 0;
+    width: auto;
+  }
+
+  .dep-table tbody:last-of-type {
+    border-bottom: 1px solid var(--govuk-border-colour);
+  }
+
+  /* Main service row: CSS grid layout */
+  .dep-table tr.govuk-table__row:first-child {
+    display: grid;
+    grid-template-columns: 60px 1fr auto;
+    grid-template-areas:
+      "time  dest   status"
+      ".     dest   plat"
+      "stops stops  stops";
+    column-gap: 10px;
+    row-gap: 2px;
+    width: auto;
+  }
+
+  .dep-td-time   { grid-area: time;   padding: 0 !important; border: none !important; }
+  .dep-td-dest   { grid-area: dest;   padding: 0 !important; border: none !important; }
+  .dep-td-status { grid-area: status; padding: 0 !important; border: none !important; }
+  .dep-td-plat   { grid-area: plat;   padding: 0 !important; border: none !important; text-align: right !important; }
+  .dep-td-stops  { grid-area: stops;  padding: 6px 0 0 !important; border: none !important; }
+
+  /* Platform: smaller on mobile since it sits inline */
+  .dep-td-plat .dep-plat {
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  /* Calling points expansion row */
+  .dep-table .dep-calling-row {
+    display: block;
+  }
+
+  .dep-table .dep-calling-row td {
+    padding: 4px 0 0 !important;
+    border: none !important;
+    width: auto;
+  }
+}
