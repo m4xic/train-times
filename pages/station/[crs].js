@@ -457,7 +457,7 @@ function ServiceRows({ service }) {
           {viaText && (
             <div className="govuk-body-s govuk-hint" style={{ marginBottom: 0 }}>{viaText}</div>
           )}
-          <div className="govuk-body-s govuk-hint" style={{ marginBottom: 0 }}>{service.operator}</div>
+          <div className="dep-operator">{service.operator}</div>
         </td>
 
         <td className="govuk-table__cell dep-td-status">

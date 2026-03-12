@@ -41,6 +41,11 @@ body {
   color: var(--govuk-secondary-text-colour);
 }
 
+.dep-operator {
+  font-size: 0.75rem;
+  color: var(--govuk-secondary-text-colour);
+}
+
 .dep-plat-lbl {
   display: none; /* shown only on mobile via responsive CSS */
   font-size: 0.75rem;
