@@ -308,7 +308,7 @@ body {
   */
   .dep-table tr.govuk-table__row:first-child {
     display: grid;
-    grid-template-columns: 64px 1fr 56px;
+    grid-template-columns: auto 1fr 56px;
     column-gap: 12px;
     width: auto;
     align-items: start;
