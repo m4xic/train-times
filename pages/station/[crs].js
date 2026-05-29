@@ -31,7 +31,7 @@ export default function StationPage() {
     numRows > ROWS_STEP                 // load-more was attempted and exhausted
   )
 
-  const [showDeparted, setShowDeparted] = useState(false)
+  const [hideDisrupted, setHideDisrupted] = useState(true)
 
   // Destination filter UI
   const [showFilter, setShowFilter] = useState(false)
@@ -191,15 +191,15 @@ export default function StationPage() {
             </button>
           )}
 
-          <label className="departed-toggle" title="Show departed trains">
-            <span className="departed-toggle-label">Departed</span>
-            <span className={`toggle-track${showDeparted ? ' on' : ''}`}>
+          <label className="departed-toggle" title="Hide indefinitely delayed and cancelled trains">
+            <span className="departed-toggle-label">Hide issues</span>
+            <span className={`toggle-track${hideDisrupted ? ' on' : ''}`}>
               <span className="toggle-thumb" />
             </span>
             <input
               type="checkbox"
-              checked={showDeparted}
-              onChange={(e) => setShowDeparted(e.target.checked)}
+              checked={hideDisrupted}
+              onChange={(e) => setHideDisrupted(e.target.checked)}
               style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }}
             />
           </label>
@@ -303,7 +303,7 @@ export default function StationPage() {
               <>
                 <div className="departures-list">
                   {data.services
-                    .filter((s) => showDeparted || getStatus(s).type !== 'departed')
+                    .filter((s) => !hideDisrupted || (!s.cancelled && s.etd !== 'Delayed'))
                     .map((service, i) => (
                       <DepartureCard key={i} service={service} />
                     ))}
