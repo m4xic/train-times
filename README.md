@@ -47,7 +47,7 @@ The home screen requests the browser's Geolocation API on load. If granted, it r
 ### Stack
 
 - **Next.js 16** (Pages Router) — chosen over a static site because the API token needs to stay server-side
-- **React 18** — state, effects, refs, `useLayoutEffect` for synchronous DOM measurement
+- **React 19** — state, effects, refs, `useLayoutEffect` for synchronous DOM measurement
 - **fast-xml-parser** — parses the SOAP/XML responses from Darwin into plain JS objects
 - **Vercel** — deployment, with the `LDB_TOKEN` stored as an environment variable
 
@@ -61,7 +61,7 @@ The home screen requests the browser's Geolocation API on load. If granted, it r
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 20.9+
 - A National Rail OpenLDB API token — register at [https://realtime.nationalrail.co.uk/OpenLDBWSRegistration](https://realtime.nationalrail.co.uk/OpenLDBWSRegistration)
 
 ### Local development
@@ -140,13 +140,13 @@ public/
 
 ## How this was built
 
-This project was built collaboratively between the repo owner and [Claude](https://claude.ai) (Anthropic's AI) using [Claude Code](https://claude.com/claude-code), Anthropic's agentic CLI tool.
+This project was built collaboratively between the repository owner and AI coding agents.
 
 The brief was to build a National Rail PWA that would feel at home on an iPhone — minimal, fast, and functional. From that starting point, the project evolved through a back-and-forth conversation:
 
 **Architecture decisions** were made together. We chose Vercel over GitHub Pages specifically because a serverless proxy was needed to keep the API token off the client. Next.js Pages Router was the natural fit — simple file-based routing, API routes built in, no overengineering.
 
-**The Darwin API took some debugging.** The initial `SOAPAction` header value was wrong (the operation was introduced in 2015 but the schema is versioned to 2021 — the action uses the *introduction* date, not the schema version). Claude fetched the live WSDL to identify the correct values. The endpoint also needed correcting from `ldb11.asmx` to `ldb12.asmx`. These aren't clearly documented, and working through the SOAP spec together was one of the more involved parts of the build.
+**The Darwin API took some debugging.** The initial `SOAPAction` header value was wrong (the operation was introduced in 2015 but the schema is versioned to 2021 — the action uses the *introduction* date, not the schema version). Reviewing the live WSDL identified the correct values. The endpoint also needed correcting from `ldb11.asmx` to `ldb12.asmx`. These aren't clearly documented, and working through the SOAP spec was one of the more involved parts of the build.
 
 **A significant architectural change** happened when it became clear that `GetDepBoardWithDetails` — which was the original choice because it includes calling points inline — silently caps responses at 10 trains regardless of how many you request. This was confirmed by testing directly against the API at various `numRows` values and comparing with `GetDepartureBoard`. The fix was to switch to `GetDepartureBoard` for the board (which has no such cap) and load calling points lazily via `GetServiceDetails` when a card is expanded.
 
@@ -154,6 +154,6 @@ The brief was to build a National Rail PWA that would feel at home on an iPhone 
 
 **The UI details** — the iOS toggle switch, the sticky frosted navbar, the pulsing live dot, the dynamic calling points truncation — were refined through the conversation, with the user reviewing on a real iPhone and giving feedback on what felt right.
 
-**Geolocation** was added as a late feature. The user supplied a `stations.json` file with coordinates for every UK National Rail station; Claude wired in the Haversine distance calculation and the geolocation permission flow, with the section silently suppressed if permission is denied.
+**Geolocation** was added as a late feature. The supplied `stations.json` file includes coordinates for every UK National Rail station; the app uses a Haversine distance calculation and the browser's geolocation permission flow, with the section silently suppressed if permission is denied.
 
 The whole thing was written without any UI component library or CSS framework — just React, plain CSS with custom properties, and the Darwin API.
