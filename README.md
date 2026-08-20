@@ -128,8 +128,7 @@ pages/
 lib/
   ldb.js                # OpenLDB SOAP client
   presets.js            # Quick route configuration
-  stations.js           # Station list for search autocomplete
-stations.json           # Full UK station dataset with coordinates (for geolocation)
+stations.json           # Full UK station dataset for all search and geolocation features
 styles/
   globals.css           # All styles — iOS dark design tokens, component styles
 public/

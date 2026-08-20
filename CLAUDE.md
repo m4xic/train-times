@@ -30,9 +30,7 @@ Requires `LDB_TOKEN` in `.env.local` (locally) or Vercel environment variables (
 - `getServiceDetails(serviceID)` — calls `GetServiceDetails`
 - Uses `fast-xml-parser` with `removeNSPrefix: true` to flatten the SOAP/XML namespace mess
 
-**Two station datasets** exist and serve different purposes:
-- `lib/stations.js` — ~100 curated stations used for destination filter autocomplete on the board page
-- `stations.json` — full list of all UK stations (with lat/long) used for geolocation sorting and the full station search on the home page; shape is `{ stationName, crsCode, lat, long }`
+**Station dataset:** `stations.json` contains the full list of UK stations and powers every station search, including the destination filter. It also includes coordinates used for geolocation sorting; its shape is `{ stationName, crsCode, lat, long }`.
 
 **Critical API constraint:** Always use `GetDepartureBoard` (not `GetDepBoardWithDetails`) — the latter is hard-capped at 10 results server-side regardless of `numRows`.
 

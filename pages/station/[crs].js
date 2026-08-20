@@ -1,7 +1,7 @@
 import { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
-import { stations } from '../../lib/stations'
+import allStations from '../../stations.json'
 
 const REFRESH_SECS = 10
 const ROWS_STEP = 20
@@ -38,24 +38,24 @@ export default function StationPage() {
   const [filterSearch, setFilterSearch] = useState('')
   const filterResults =
     filterSearch.length >= 2
-      ? stations
+      ? allStations
           .filter(
             (s) =>
-              s.name.toLowerCase().includes(filterSearch.toLowerCase()) ||
-              s.crs.toLowerCase() === filterSearch.toLowerCase()
+              s.stationName.toLowerCase().includes(filterSearch.toLowerCase()) ||
+              s.crsCode.toLowerCase().includes(filterSearch.toLowerCase())
           )
           .slice(0, 6)
       : []
 
   const stationName =
     data?.stationName ||
-    stations.find((s) => s.crs === crs?.toUpperCase())?.name ||
+    allStations.find((s) => s.crsCode === crs?.toUpperCase())?.stationName ||
     crs?.toUpperCase() ||
     '…'
 
   const filterName = to
     ? data?.filterLocationName ||
-      stations.find((s) => s.crs === to.toUpperCase())?.name ||
+      allStations.find((s) => s.crsCode === to.toUpperCase())?.stationName ||
       to.toUpperCase()
     : null
 
@@ -241,12 +241,12 @@ export default function StationPage() {
               <div className="search-results">
                 {filterResults.map((s) => (
                   <div
-                    key={s.crs}
+                    key={s.crsCode}
                     className="search-result-item"
-                    onClick={() => applyFilter(s.crs)}
+                    onClick={() => applyFilter(s.crsCode)}
                   >
-                    <span className="search-result-name">{s.name}</span>
-                    <span className="search-result-crs">{s.crs}</span>
+                    <span className="search-result-name">{s.stationName}</span>
+                    <span className="search-result-crs">{s.crsCode}</span>
                   </div>
                 ))}
               </div>
